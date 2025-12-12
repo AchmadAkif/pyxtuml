@@ -1,8 +1,9 @@
 from bridgepoint import ooaofooa
 from xtuml import navigate_one as one
 from xtuml import navigate_many as many
+from xtuml import navigate_subtype as subtype
 
-m = ooaofooa.load_metamodel('MicrowaveOven.xtuml')
+m = ooaofooa.load_metamodel('Tracking.xtuml')
 
 ## GET ALL CLASS INSTANCES FROM METAMODEL
 def getAllClassInstances(kind: str): 
@@ -57,3 +58,29 @@ def getAllInstanceOperations(kind: str, args):
 		return None
 	
 	return operationsList
+
+# sm_sm = getInstanceStateMachine('O_OBJ', lambda sel: sel.name == 'Goal')
+# statesList = many(sm_sm).SM_STATE[501]()
+
+# for state in statesList:
+# 	sm_txn = many(state).SM_TXN[506]()
+# 	print(state.Name)
+
+# 	for txn in sm_txn:
+# 		print(f" SM_TXN {txn.Trans_ID}")
+
+# 		tah = one(txn).SM_TAH[530]()
+# 		ah = subtype(tah, 513)
+# 		act = one(ah).SM_ACT[514]()
+# 		print(act)
+
+
+
+		
+
+
+
+
+	
+		
+	

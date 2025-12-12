@@ -10,6 +10,7 @@ env = Environment(loader=FileSystemLoader('templates'))
 class_template = env.get_template('class.py.jinja2')
 operations_template = env.get_template('operations.py.jinja2')
 states_template = env.get_template('states.py.jinja2')
+sm_template = env.get_template('sm.py.jinja2')
 
 def render_operations(operations):
     if not operations:
@@ -18,8 +19,13 @@ def render_operations(operations):
 
 def render_states(states):
     if not states:
-        return ''
+        return ""
     return states_template.render(states=states)
+
+def render_stateMachine(states, className):
+    if not states:
+        return ""
+    return sm_template.render(states=states, className=className)
 
 def render_class(kind: str):
     classes = getAllClassInstances(kind)
@@ -31,15 +37,24 @@ def render_class(kind: str):
         states = getInstanceStates(kind, lambda sel: sel.Key_Lett == c.Key_Lett)
 
         if states:
+            states = list(states)
             states_content = render_states(states)
+            sm_content = render_stateMachine(states, className)
         else:
             states_content = ''
+            sm_content = ''
 
         operations_content = render_operations(operations)
 
-        output = class_template.render(name=className, attributes=attributes, states_content=states_content, operations_content=operations_content)
+        output = class_template.render(
+            name=className, 
+            attributes=attributes, 
+            states_content=states_content, 
+            sm_content=sm_content, 
+            operations_content=operations_content
+        )
 
-        file_path = os.path.join(output_dir, f'{c.Name}.py')
+        file_path = os.path.join(output_dir, f'{className}.py')
         with open(file_path, 'w') as f:
             f.write(output)
 
