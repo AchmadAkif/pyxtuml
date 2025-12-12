@@ -1,10 +1,9 @@
 class {{ name }}:
+{{ states_content }}
+
     def __init__(self):
 {%- for attribute in attributes %}
         self.{{ attribute.Name }} = None
 {%- endfor %}
 
-{% for operation in operations %}
-    def {{ operation.Name }}(self):
-        pass
-{% endfor %}
+{{ operations_content }}

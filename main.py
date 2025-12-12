@@ -2,7 +2,7 @@ from bridgepoint import ooaofooa
 from xtuml import navigate_one as one
 from xtuml import navigate_many as many
 
-m = ooaofooa.load_metamodel('Tracking.xtuml')
+m = ooaofooa.load_metamodel('MicrowaveOven.xtuml')
 
 ## GET ALL CLASS INSTANCES FROM METAMODEL
 def getAllClassInstances(kind: str): 
@@ -29,6 +29,9 @@ def getInstanceStates(kind: str, args):
 	stateMachine = getInstanceStateMachine(kind, args)
 	statesList = many(stateMachine).SM_STATE[501]()
 
+	if len(statesList) == 0:
+		return None
+
 	return statesList
 
 ## GET INSTANCE STATE TRANSITIONS
@@ -50,8 +53,7 @@ def getAllInstanceOperations(kind: str, args):
 	instance = getInstance(kind, args)
 	operationsList = many(instance).O_TFR[115]()    
 
+	if not operationsList:
+		return None
+	
 	return operationsList
-
-WoSesh = m.select_one('O_OBJ', lambda sel: sel.name == 'WorkoutSession')
-for o_tfr in many(WoSesh).O_TFR[115]():
-	print(o_tfr.Action_Semantics_internal)

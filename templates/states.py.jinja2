@@ -1,0 +1,5 @@
+    states = [
+    {%- for state in states %}
+        {'name': '{{ state.name }}'}{% if not loop.last %},{% endif %}
+    {%- endfor %}
+    ]
