@@ -10,6 +10,12 @@ def getAllClassInstances(kind: str):
 	
 	return classInstancesList 
  
+## GET AN INSTANCE FROM METAMODEL
+def getInstance(kind: str, args):
+	classInstance = m.select_one(kind, args)
+
+	return classInstance
+
 ## GET INSTANCE STATE MACHINE
 def getInstanceStateMachine(kind: str, args):
 	instance = m.select_one(kind, args)
@@ -32,6 +38,19 @@ def getInstanceStateTransitions(kind: str, args):
 
 	return transitionsList 
     
+## GET INSTANCE ATTRIBUTES
+def getInstanceAttributes(kind: str, args):
+    instance = getInstance(kind, args)
+    attributesList = many(instance).O_ATTR[102]()
+
+    return attributesList
+
+## GET ALL INSTANCE-BASED OPERATIONS
+def getAllInstanceOperations(kind: str, args):
+	instance = getInstance(kind, args)
+	operationsList = many(instance).O_TFR[115]()    
+
+	return operationsList
 
 WoSesh = m.select_one('O_OBJ', lambda sel: sel.name == 'WorkoutSession')
 for o_tfr in many(WoSesh).O_TFR[115]():
