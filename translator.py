@@ -24,6 +24,43 @@ class OALToPyWalker(xtuml.Walker):
 		value = int(node.value)
 		return value
 	
+	def accept_StatementListNode(self, node, **kwargs):
+		for child in node.children:
+			self.accept(child, **kwargs)
+
+	def accept_BlockNode(self, node):
+		statement_list = self.accept(node.statement_list)
+
+	def accept_ElIfListNode(self, node, **kwargs):
+		for child in node.children:
+			self.accept(child, **kwargs)
+
+	def accept_ElseNode(self, node):
+		block = self.accept(node.block)
+
+	def accept_IfNode(self, node, **kwargs):
+		# Generate the condition
+		condition = self.accept(node.expression, **kwargs)
+		self.add_line(f"if {condition}:")
+		self.increase_indent()
+		self.accept(node.block, **kwargs)
+		self.decrease_indent()
+
+		# Handle elifs
+		for elif_node in node.elif_list.children:
+				elif_condition = self.accept(elif_node.expression, **kwargs)
+				self.add_line(f"elif {elif_condition}:")
+				self.increase_indent()
+				self.accept(elif_node.block, **kwargs)
+				self.decrease_indent()
+
+		# Handle else
+		if node.else_clause and node.else_clause.block:
+				self.add_line("else:")
+				self.increase_indent()
+				self.accept(node.else_clause.block, **kwargs)
+				self.decrease_indent()
+
 	def accept_StringNode(self, node):
 		value = node.value
 
@@ -51,9 +88,8 @@ class OALToPyWalker(xtuml.Walker):
 	def accept_AssignmentNode(self, node):
 		variable_access = self.accept(node.variable_access)
 		expression = self.accept(node.expression)
+		self.add_line(f"{variable_access} = {expression}")
 
-		print(f"{variable_access} = {expression}")
-	
 	def accept_BinaryOperationNode(self, node, **kwargs):
 		operator = node.operator
 		left_operand = self.accept(node.left, **kwargs)
@@ -78,9 +114,9 @@ class OALToPyWalker(xtuml.Walker):
 		key_letter = node.key_letter
 
 		if cardinality == 'many':
-			print(f"{var_name} = {key_letter}.instances")
+			self.add_line(f"{var_name} = {key_letter}.instances")
 		else:
-			print(f"{var_name} = next(iter({key_letter}.instances), None)")
+			self.add_line(f"{var_name} = next(iter({key_letter}.instances), None)")
 
 	def accept_SelectFromWhereNode(self, node):
 		cardinality = node.cardinality
@@ -90,14 +126,23 @@ class OALToPyWalker(xtuml.Walker):
 		where = self.accept(node.where_clause, iteration_var=iteration_var)
 
 		if cardinality == 'many':
-			print(f"{var_name} = [{iteration_var} for {iteration_var} in {key_letter}.instances if {where}]")
+			self.add_line(f"{var_name} = [{iteration_var} for {iteration_var} in {key_letter}.instances if {where}]")
 		else:
-			print(f"{var_name} = next(({iteration_var} for {iteration_var} in {key_letter}.instances if {where}), None)")
+			self.add_line(f"{var_name} = next(({iteration_var} for {iteration_var} in {key_letter}.instances if {where}), None)")
 
 ## TEST TRANSLATOR ##
-oal_code = 'xyz = tes.temp;'
+oal_code = """
+if x == 1
+  xyz = obj.attr;
+elif x == 2
+	obj.temp = 200;
+else
+  y = 3;
+end if;
+"""
 
 ast = oal.parse(oal_code)
 w = OALToPyWalker()
-w.visitors.append(xtuml.tools.NodePrintVisitor())
+# w.visitors.append(xtuml.tools.NodePrintVisitor())
 w.accept(ast)
+print(w.get_py_code())
