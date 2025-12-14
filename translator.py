@@ -24,6 +24,26 @@ class OALToPyWalker(xtuml.Walker):
 		value = int(node.value)
 		return value
 	
+	def accept_ForEachNode(self, node, **kwargs):
+		instance_var_name = node.instance_variable_name
+		set_var_name = node.set_variable_name
+		self.add_line(f"for {instance_var_name} in {set_var_name}:")
+		self.increase_indent()
+		self.accept(node.block, **kwargs)
+		self.decrease_indent()
+
+	def accept_WhileNode(self, node):
+		expression = self.accept(node.expression)
+		self.add_line(f"while {expression}:")
+		self.increase_indent()
+		self.accept(node.block)
+
+	def accept_BreakNode(self, node):
+		self.add_line(f"break")
+
+	def accept_ContinueNode(self, node):
+		self.add_line(f"continue")
+
 	def accept_StatementListNode(self, node, **kwargs):
 		for child in node.children:
 			self.accept(child, **kwargs)
@@ -132,13 +152,13 @@ class OALToPyWalker(xtuml.Walker):
 
 ## TEST TRANSLATOR ##
 oal_code = """
-if x == 1
-  xyz = obj.attr;
-elif x == 2
-	obj.temp = 200;
-else
-  y = 3;
-end if;
+while x == 2
+  y = TRUE;
+
+	if x == 1
+	  continue;
+	end if;
+end while;
 """
 
 ast = oal.parse(oal_code)
