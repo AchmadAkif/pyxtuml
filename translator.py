@@ -29,9 +29,15 @@ class OALToPyWalker(xtuml.Walker):
 
 		return value
 	
-	def accept_AssignmentNode(self, node):
-		variable_access = self.accept(node.variable_access)
-		expression = self.accept(node.expression)
+	def accept_BooleanNode(self, node):
+		value = node.value
+
+		return value
+	
+	def accept_VariableAccessNode(self, node):
+		var_name = node.variable_name
+
+		return var_name
 
 	def accept_SelectedAccessNode(self, node, **kwargs):
 		return kwargs['iteration_var']
@@ -41,6 +47,12 @@ class OALToPyWalker(xtuml.Walker):
 		attr_name = node.name
 		
 		return f"{handle_code}.{attr_name}"
+	
+	def accept_AssignmentNode(self, node):
+		variable_access = self.accept(node.variable_access)
+		expression = self.accept(node.expression)
+
+		print(f"{variable_access} = {expression}")
 	
 	def accept_BinaryOperationNode(self, node, **kwargs):
 		operator = node.operator
@@ -83,9 +95,9 @@ class OALToPyWalker(xtuml.Walker):
 			print(f"{var_name} = next(({iteration_var} for {iteration_var} in {key_letter}.instances if {where}), None)")
 
 ## TEST TRANSLATOR ##
-oal_code = 'select any oven from instances of MO_O where selected.state == "Awaiting Cooking Request";'
+oal_code = 'xyz = tes.temp;'
 
 ast = oal.parse(oal_code)
 w = OALToPyWalker()
-# w.visitors.append(xtuml.tools.NodePrintVisitor())
+w.visitors.append(xtuml.tools.NodePrintVisitor())
 w.accept(ast)
