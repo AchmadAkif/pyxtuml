@@ -31,7 +31,7 @@ def render_class(kind: str):
     classes = getAllClassInstances(kind)
     
     for c in classes:
-        className = c.Name.replace(' ', '')
+        className = c.Key_Letter
         attributes = getInstanceAttributes(kind, lambda sel: sel.Key_Lett == c.Key_Lett)
         operations = getAllInstanceOperations(kind, lambda sel: sel.Key_Lett == c.Key_Lett)
         states = getInstanceStates(kind, lambda sel: sel.Key_Lett == c.Key_Lett)
